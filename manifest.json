@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+  "name": "english-helper",
+  "description": "english-helper",
+  "version": "1.0",
+  "permissions": [
+    "http://www.beikaodi.com/"
+  ],
+  "browser_action": {
+    "default_icon": "icon.png"
+  },
+  "content_scripts": [
+		{
+			"matches": ["http://*/*","https://*/*"],
+			"js": ["main.js"],
+			"css": ["main.css"],
+			"run_at": "document_end",
+			"all_frames": true
+		}
+	]
+
+}

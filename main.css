@@ -1,0 +1,7 @@
+.englishTip{
+	width: 100px; 
+	height: 100px; 
+	background: #000;
+	position:absolute;
+	border: 1px solid #aaa;
+}
