@@ -1,13 +1,16 @@
 document.addEventListener('mouseup', function(evt) {
-	const range = getSelectionDimensions();
-	if (!range || range.width <= 0){
+	const selection = window.getSelection();
+	if (!selection.toString()) {
 		return;
 	}
-	createTipDiv(range);
+	const range = selection.getRangeAt(0).cloneRange();
+	const rect = range.getBoundingClientRect();
+	createTipDiv(rect);
 })
 
-function getSelectionDimensions() {
+/*function getSelectionDimensions() {
   var range = getSelectionRange();
+  console.log(range)
   if (!range)
     return null;
   var sel = document.selection;
@@ -32,9 +35,9 @@ function getSelectionDimensions() {
     }
   }
   return { width: width , height: height, left: left, top: top };
-}
+}*/
 
-function getSelectionRange() {
+/*function getSelectionRange() {
   var sel = document.selection, range = null;
   var width = 0, height = 0, left = 0, top = 0;
   if (sel) {
@@ -48,11 +51,15 @@ function getSelectionRange() {
     }
   }
   return range;
-}
+}*/
 
-function createTipDiv(range) {
-	const button = document.createElement('button');
-	button.setAttribute('id', 'englishHelper_tip');
+function createTipDiv(rect) {
+	const button = document.createElement('a');
 	button.style.position = 'absolute';
+	button.style.left = (rect.left  + rect.right)/2 + 'px';
+	button.style.top = (rect.bottom + window.scrollY) + 'px';
+	button.setAttribute('title', "popover");
+	button.setAttribute('data-placement', "bottom");
 	document.body.appendChild(button);
+	$(button).popover('show');
 }
