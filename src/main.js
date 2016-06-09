@@ -1,65 +1,84 @@
-document.addEventListener('mouseup', function(evt) {
-	const selection = window.getSelection();
-	if (!selection.toString()) {
-		return;
-	}
-	const range = selection.getRangeAt(0).cloneRange();
-	const rect = range.getBoundingClientRect();
-	createTipDiv(rect);
-})
+/**
+ * 项目初始化
+ */
+document.addEventListener('click', function(evt) {
 
-/*function getSelectionDimensions() {
-  var range = getSelectionRange();
-  console.log(range)
-  if (!range)
-    return null;
-  var sel = document.selection;
-  var width = 0, height = 0, left = 0, top = 0;
-  if (sel) {
-    if (sel.type != "Control") {
-      width = range.boundingWidth;
-      height = range.boundingHeight;
-      left = range.boundingLeft;
-      top = range.boundingTop;
-    }
-  } else if (window.getSelection) {
-    sel = window.getSelection();
-    if (sel.rangeCount) {
-      if (range.getBoundingClientRect) {
-        var rect = range.getBoundingClientRect();
-        width = rect.right - rect.left;
-        height = rect.bottom - rect.top;
-        left = rect.left;
-        top = rect.top;
-      }
-    }
-  }
-  return { width: width , height: height, left: left, top: top };
-}*/
+  // 清除弹出框
+  let TipDiv = document.querySelector('.english-helper-popover');
+  if(TipDiv)  document.body.removeChild(TipDiv);
+  
+  // 没有选中区域就退出
+	const selection = getSelection();
+	if (!selection.toString().trim()) return;
 
-/*function getSelectionRange() {
-  var sel = document.selection, range = null;
-  var width = 0, height = 0, left = 0, top = 0;
-  if (sel) {
-    if (sel.type != "Control") {
-      range = sel.createRange();
-    }
-  } else if (window.getSelection) {
-    sel = window.getSelection();
-    if (sel.rangeCount) {
-      range = sel.getRangeAt(0).cloneRange();
-    }
-  }
-  return range;
-}*/
+  // 翻译
+  translate(selection, data => {
 
-function createTipDiv(rect) {
-	const button = document.createElement('a');
-	button.style.position = 'absolute';
-	button.style.left = (rect.left  + rect.right)/2 + 'px';
-	button.style.top = (rect.bottom + window.scrollY) + 'px';
-	button.setAttribute('title', "popover");
-	button.setAttribute('data-placement', "bottom");
-	document.body.appendChild(button);
-	$(button).popover('show');
+    // 创建弹出框
+    const rect = getRect(selection);
+  	TipDiv = createTipDiv(rect, data);
+    stopPropagation(TipDiv);
+
+    // 弹出框添加到body下
+    document.body.appendChild(TipDiv);
+  });
+});
+
+
+function getRect(selection) {
+  return selection.getRangeAt(0).getBoundingClientRect();
+}
+
+/**
+ * 创建div
+ * @param rect 鼠标选中的矩形对象
+ * @return 弹出框div
+ */
+function createTipDiv(rect, data) {
+  const top = (rect.bottom + scrollY) + 'px';
+  const left = (rect.left + rect.right)/2 + 'px';
+
+  const query = data.query;
+  const display_content = data.basic && data.basic.explains.join('<br>') || data.translation;
+  const div = `<div class="english-helper-popover" style="top:${top}; left:${left}">
+                    <div class="english-helper-popover-arrow"></div>
+                    <div class="english-helper-popover-title">${query}</div>
+                    <div class="english-helper-popover-content">${display_content}</div>
+                  </div>`
+  return getDomfromHTML(div);
+}
+
+/**
+ * 转换HTML字符串成为DOM
+ */
+function getDomfromHTML(HTML) {
+  const result = document.createElement('div');
+  result.innerHTML = HTML;
+  return result.childNodes[0];
+}
+
+/**
+ * 绑定事件
+ * @param TipDiv 绑定事件的
+ */
+function stopPropagation(TipDiv) {
+  TipDiv.addEventListener('click', e => {
+    e.stopPropagation();
+  });
+}
+
+
+/**
+ * 翻译
+ * @param selection 选中对象
+ */
+function translate(selection, callback) {
+  const word = selection.toString().trim();
+  const url = `//fanyi.youdao.com/openapi.do?keyfrom=sdfsffsdfsdfsdf&key=906673673&type=data&doctype=json&version=1.1&q=${word}`;
+
+  fetch(url).then(function(res) {
+    return res.json()
+  }).then(data => {
+    callback(data);
+  }).catch(err => {})
 }

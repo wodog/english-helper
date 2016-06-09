@@ -13,12 +13,10 @@
 		{
 			"matches": ["http://*/*","https://*/*"],
 			"js": [
-				"libs/jquery-1.11.3.min.js", 
-				"libs/bootstrap-3.3.5-dist/js/bootstrap.min.js", 
 				"src/main.js"
 			],
 			"css": [
-				"libs/bootstrap-3.3.5-dist/css/bootstrap.min.css"
+				"src/main.css"
 			],
 			"run_at": "document_end",
 			"all_frames": true
